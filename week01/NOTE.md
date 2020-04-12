@@ -2,7 +2,7 @@
 # SGML的实体部分有2千多个 就总结了常用的几个
 # 脑图上补全了Type
 # Frontend Technology
-
+![Image of Yaktocat](/xmind.png)
 ## HTML (HyperText Markup Language 超文本标记语言)
 
 ### As computer language

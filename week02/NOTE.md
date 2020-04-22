@@ -27,7 +27,7 @@
     ```
     
 ## 写一个UTF-8 Encoding的函数
-    ```javasript
+    ```javascript
     const encodeUTF8 = (str) => {
       const code = encodeURIComponent(str)
       const len = code.length

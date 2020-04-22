@@ -27,7 +27,7 @@
     ```
     
 ## 写一个UTF-8 Encoding的函数
-    ```javascript
+    ```
     const encodeUTF8 = (str) => {
       const code = encodeURIComponent(str)
       const len = code.length
@@ -46,6 +46,7 @@
       return bytes
     }
     ```
+
 ## 写一个正则表达式，匹配所有的字符串直接量
 ### 思路 先拆再整 同上上
   - unicode

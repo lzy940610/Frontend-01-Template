@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    /\"(?:[^"\\\n\r|\\u[0-9a-f]{4}\\n|\\n])+"\"/
+
+
+
+  </script>
+  <script>
+    var x = 0;
+    function foo() {
+      var o = { x: 1 };
+      x = 2;
+      with (o) {
+        var x = 3
+      }
+      console.log('inner :', x, 'o :', o)
+    }
+    foo()
+    console.log('out :', x)
+  </script>
+  <!-- <script>
+    function sleep(d) {
+      return new Promise(resolve => setTimeout(resolve, d))
+    }
+    // void async function () {
+    //   var j = 0;
+    //   while (true) {
+    //     console.log(j++);
+    //     await sleep(1000)
+    //   }
+    // }();
+    async function* foo() {
+      let i = 0;
+      while (true) {
+        console.log(i++);
+        yield i++;
+        await sleep(1000)
+      }
+
+    }
+
+    void async function() {
+
+    }()
+
+    
+    // 立即执行函数 IIFE Immediately Invoked Function Expression
+    // 立即执行异步执行函数 IIAFE Immediately Invoked Async Function Expression
+    // var i = 0;
+    // function run() {
+    //   for (i = 0; i < 10; i++) { // for 是父作用域
+    //     console.log(i) // block 作用域
+    //   }
+    //   return;
+    //   var i
+    // }
+    // run()
+
+    void function () {
+      // 简单语句
+      // const a = 1 + 2;
+      // ;
+      // debugger;
+      // throw 'fail';
+      // continue label1;
+      // break label2;
+      // return 1 + 2;
+      // 组合语句
+      // {
+      //   const a = 1;
+      //   throw 1;
+      //   let b = 2;
+      //   b = foo();
+      // }
+      // {
+      //   let i = 1;
+      //   {
+      //     let i = 1;
+      //     console.log('inner i', i)
+      //   }
+      //   console.log('out iner :', i)
+      // }
+      // for (let i = 0; i < 10; i++) { // for 是父作用域
+      //   console.log(i) // block 作用域
+      // }
+      // for (var i = 0; i < 10; i++) { // for 是父作用域
+      //   console.log(i) // block 作用域
+      // }
+
+      // for (let key in { a: 1, b: 2 }) {
+      //   // console.log('key:', key);
+      // }
+
+      // function* g() {
+      //   yield 0;
+      //   yield 1;
+      //   yield 2;
+      //   yield 3;
+      // }
+
+      // for (let p of g()) { // 任何具有迭代对象的 都可以去访问 Iterator 迭代器 一般用在array和generat上
+      //   // console.log('for of p', p);
+      // }
+
+      // for (let [key, value] of Object.entries({ a: 1, b: 2 })) {
+      //   // console.log(key, value)
+      // }
+
+
+      // console.log(Object.entries({ a: 1, b: 2 }))
+
+
+      // function Class(params) {
+      //   public:
+      //   this.a = 1;
+      //   this.b = 2;
+      //   private:
+      //   this.x = 3;
+      //   this.y = 4;
+      // }
+      // let a = 0;
+      // try {
+      //   1 = a
+      // } catch (e) { // 这里可以声明
+      //   // 作用域： 一个声明 文本的有效范围 源代码的作用范围 文本域
+      //   // 执行上下文： 在用户的电脑上 JS引擎里这块内存 上在执行的时候需要的对象
+      //   console.log('e :', e);
+      //   throw
+      // } finally {
+      //   console.log('finally')
+      // }
+
+      // 函数声明
+      // void foo() {
+
+      // } ()
+
+      // // 函数表达式 可以没名字
+      // const o = class {
+
+      // }
+
+
+      // 只要不出现在开头就是表达式
+      // function* foo() {
+      //   let i = 0;
+      //   yield 1;
+      //   yield 2;
+      //   yield 3;
+      //   yield true;
+      //   yield {};
+      //   var i = 3;
+      //   while (true) {
+      //     yield i++
+      //   }
+      // }
+
+      var i = 0;
+      function tick() {
+        console.log(i++);
+        setTimeout(tick(), 1000);
+      }
+
+    }()
+  </script> -->
+</body>
+
+</html>

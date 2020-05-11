@@ -1,11 +1,8 @@
+/** 
+ * 基于Node.js的net内置库 实现自己的http库
+ * 
+ */
 const net = require('net');
-/**
- * Request
- */
-/**
- * Response
- */
-// ResponseParse 用来产生 Response这个class
 class ResponseParser {
   /**
    * 格式
@@ -55,8 +52,7 @@ class ResponseParser {
     return this.bodyParser && this.bodyParser.isFinished
   }
   get response() {
-    console.log('this.statusLine :', this.statusLine);
-    this.statusLine.match(/HTTP\/1.1 ([0-9]+) ([\s\S]+)/)
+    this.statusLine.match(/HTTP\/1.1 ([0-9]+) ([\s\S]+)/) // Regexp $1?
     return {
       statusCode: RegExp.$1,
       statusText: RegExp.$2,
@@ -155,6 +151,7 @@ class TrunkedBodyParse {
         this.current = this.READING_TRUNK
       }
     } else if (this.current === this.READING_TRUNK) {
+      console.log('READING_TRUNK char :', char)
       this.content.push(char)
       this.length--
       if (this.length === 0) {
@@ -172,6 +169,18 @@ class TrunkedBodyParse {
   }
 }
 
+/**
+ * 自定义一个http服务的 Request类
+ * @options  Object              Request构造函数必需参数
+ *    method  String             请求方式 主要 GET、POST这两种
+ *    host    String             请求主域/IP 诸如 localhost 或者 127.0.0.1
+ *    path    String             请求路径 默认 /
+ *    port    [Number, String]   请求端口 默认80
+ *    headers Object             请求头 默认 {}
+ *    body    Object             请求体 默认 {} 
+ * 
+ */
+
 class Request {
   constructor(options) {
     this.method = options.method || "GET"
@@ -180,27 +189,25 @@ class Request {
     this.port = options.port || 80
     this.body = options.body || {}
     this.headers = options.headers || {}
-    // 要根据 content-type 去编码它的文字
 
+    // 如果headers没有Content-Type属性 则创建一个 并且赋予默认值 application/x-www-form-urlencoed
     if (!this.headers["Content-Type"]) {
       this.headers["Content-Type"] = "application/x-www-form-urlencoed"
     }
 
     if (this.headers["Content-Type"] === "application/json") {
+      // 如果Content-Type 为 application/json 则直接使用JSON.stringfy()序列化body数据解构即可
       this.bodyText = JSON.stringify(this.body)
     } else if (this.headers["Content-Type"] === "application/x-www-form-urlencoed") {
-      /**
-       * 注意 使用encodeURLComponent 对key值编码一下
-       * encodeURIComponent（）函数通过 用表示字符的UTF-8编码的一个，两个，三个或四个
-       * 转义序列 替换 某些字符的 每个实例 来对 URI进行编码
-       */
+      // 如果Content-Type 为 application/json 则需要使用 ?key=value& url 参数这种方式拼接为字符串返回
       this.bodyText = Object.keys(this.body).map(key => `${key}=${encodeURIComponent(this.body[key])}`).join('&')
     }
-    // 计算content-length
+    // 计算content-length 必须与bodyText长度一直 否则为400 错误码 bad reqeust
     this.headers["Content-Length"] = this.bodyText.length
   }
   toString() {
     // ⚠️ \r\n 不是 \n\r
+    console.log('bodyText :', this.bodyText)
     return `
 ${this.method} ${this.path} HTTP/1.1\r
 ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r
@@ -209,10 +216,13 @@ ${this.bodyText}`
   }
   send(connection) {
     return new Promise((resolve, reject) => {
+      // 创建一个ResponseParser实例 用以返回resolve值
       const parser = new ResponseParser()
       if (connection) {
+        // 如果已经创建了server-client连接 则直接往connection写入request请求
         connection.write(this.toString())
       } else {
+        // 若无则创建连接后 再写入request请求
         connection = net.createConnection({
           host: this.host,
           port: this.port
@@ -225,10 +235,14 @@ ${this.bodyText}`
       // 触发时机 buffer满了 或 服务端的IP包已经收到 TCP认为是流 断在哪无所谓 服务端不保证有多少个包
       // 只保证顺序 一部分一部分注入parse 然后再吐出来一个response
       connection.on('data', (data) => {
+        // 使用parser实例接受data返回的文本数据并进行解析
+        console.log(data.toString())
         parser.receive(data.toString()) // 将返回的data 传递给parser
         if (parser.isFinished) {
+          // 当parser解析connect完成 resolve返回 parser.response的值
           resolve(parser.response)
         }
+        // 至此连接断开
         connection.end()
       })
       connection.on('error', err => {
@@ -251,7 +265,8 @@ void async function() {
       ["X-Foo2"]: "customed"
     },
     body: {
-      name: "winter"
+      name: "winter",
+      age: 18
     }
   })
 

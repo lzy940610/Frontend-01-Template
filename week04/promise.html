@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    void function () {
+      async function afoo() {
+        console.log("-2")
+        await new Promise(resolve => resolve());
+        console.log("-1")
+      }
+
+
+      new Promise(resolve => (console.log("0"), resolve()))
+        .then(() => (
+          console.log("1"),
+          new Promise(resolve => resolve())
+            .then(() => console.log("1.5"))));
+
+
+      setTimeout(function () {
+        console.log("2");
+
+        new Promise(resolve => resolve()).then(console.log("3"))
+
+
+      }, 0)
+      console.log("4");
+      console.log("5");
+      afoo()
+      /**
+        宏任务
+          同步代码 0 4 5 -2 入队 1 -1
+          1 入队1.5
+          asyncQueue = [1, -1, 1.5]
+        宏任务 setTimeout
+          2 同步代码
+          3 异步代码
+      
+      
+      */
+
+      // new Promise(resolve => resolve()).then(() => {
+      //   // console.log('1')
+      //   this.a = 3
+      // })
+
+      // setTimeout(() => {
+      //   // console.log('2')
+      //   console.log('task 1', this.a);
+      //   new Promise(resolve => (console.log('0'), resolve())).then(() => {
+      //     console.log('second micro task 1')
+      //     new Promise(resolve => {
+      //       resolve('seond micro task 11')
+      //     }).then((res) => {
+      //       console.log('res :', res)
+      //       setTimeout(() => {
+      //         console.log('task 1 settimeout')
+      //         setTimeout(() => {
+      //           console.log('task 1 setTimeout 2')
+      //         }, 0);
+      //       }, 0);
+      //     })
+      //   })
+      // }, 0);
+
+      // setTimeout(() => {
+      //   // console.log('2')
+      //   console.log('task 2 ', this.a);
+      //   new Promise(resolve => resolve()).then(() => {
+      //     console.log('second micro task 2')
+      //     new Promise(resolve => {
+      //       resolve('seond micro task 22')
+      //     }).then((res) => {
+      //       console.log('res :', res)
+      //     })
+      //   })
+      // }, 0);
+      // console.log('3')
+    }()
+  </script>
+</body>
+
+</html>

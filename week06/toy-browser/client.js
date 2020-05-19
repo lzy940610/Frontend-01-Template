@@ -152,7 +152,7 @@ class TrunkedBodyParse {
         this.current = this.READING_TRUNK
       }
     } else if (this.current === this.READING_TRUNK) {
-      console.log('READING_TRUNK char :', char)
+      // console.log('READING_TRUNK char :', char)
       this.content.push(char)
       this.length--
       if (this.length === 0) {
@@ -208,7 +208,7 @@ class Request {
   }
   toString() {
     // ⚠️ \r\n 不是 \n\r
-    console.log('bodyText :', this.bodyText)
+    // console.log('bodyText :', this.bodyText)
     return `
 ${this.method} ${this.path} HTTP/1.1\r
 ${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r
@@ -237,7 +237,7 @@ ${this.bodyText}`
       // 只保证顺序 一部分一部分注入parse 然后再吐出来一个response
       connection.on('data', (data) => {
         // 使用parser实例接受data返回的文本数据并进行解析
-        console.log(data.toString())
+        // console.log(data.toString())
         parser.receive(data.toString()) // 将返回的data 传递给parser
         if (parser.isFinished) {
           // 当parser解析connect完成 resolve返回 parser.response的值
@@ -272,7 +272,10 @@ void async function() {
   })
 
   const response = await request.send()
-  console.log('response :', response);
+  // console.log('response :', response)
   const dom = parser.parseHTML(response.body)
-  console.log('dom :', dom)
+  // console.log(dom)
+  // console.log(JSON.stringify(dom))
+
+  console.log(JSON.stringify(dom, null, "  "))
 }()

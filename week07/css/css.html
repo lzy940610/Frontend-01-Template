@@ -8,21 +8,21 @@
 </head>
 
 <body>
+  <script>
+    let lis = document.getElementById("container").children,
+      result = [];
+    for (let li of lis) {
+      if (li.getAttribute('data-tag').match(/css/)) {
+        result.push({
+          name: li.children[1].innerText,
+          url: li.children[1].children[0].href
+        })
 
-</body>
-<script>
-  let lis = document.getElementById("container").children,
-    result = [];
-  for (let li of lis) {
-    if (li.getAttribute('data-tag').match(/css/)) {
-      result.push({
-        name: li.children[1].innerText,
-        url: li.children[1].children[0].href
-      })
-
+      }
     }
-  }
-  console.log(result)
-</script>
+    console.log(result)
+  </script>
+</body>
+
 
 </html>

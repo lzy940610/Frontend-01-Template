@@ -567,7 +567,6 @@ function happen(element, event) {
   })
 }
 
-
 void async function() {
   for (let standard of standards) {
     iframe.src = standard.url;

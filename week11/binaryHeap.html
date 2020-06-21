@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<style>
+  .cell {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: gray;
+    border-bottom: solid 1px white;
+    border-right: solid 1px white;
+    vertical-align: middle;
+  }
+
+  #container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 701px;
+  }
+</style>
+<div id="container"></div>
+<button onclick="localStorage.map = JSON.stringify(map)">save</button>
+
+
+<script>
+
+  // 堆 O(logn) 跟堆的高度相关 使用数组表示二叉树 1堆顶 23 4567 用连续内存空间存储
+  class BinaryHeap {
+    constructor(data, compare) {
+      this.data = data
+      this.compare = compare
+    }
+    take() {
+      if (!this.data.length)
+        return
+      let min = this.data[0]
+      let i = 0
+      // fix heap
+      while (i < this.data.length) {
+        if (i * 2 + 1 >= this.data.length)
+          break
+
+        if (i * 2 + 2 >= this.data.length) {
+          this.data[i] = this.data[i * 2 + 1]
+          i = i * 2 + 1
+          break
+        }
+
+        // 两个叶子节点
+        if (this.compare(this.data[i * 2 + 1], this.data[i * 2 + 2]) < 0) {
+          this.data[i] = this.data[i * 2 + 1] // 交换位置
+          i = i * 2 + 1
+        } else {
+          this.data[i] = this.data[i * 2 + 2]
+          i = i * 2 + 2
+        }
+      }
+
+      // 补空洞
+      if (i < this.data.length - 1)
+        this.insertAt(i, this.data.pop())
+      else
+        this.data.pop()
+
+
+      return min
+    }
+    insertAt(i, v) {
+      this.data[i] = v
+      while (i > 0 && this.compare(v, this.data[Math.floor((i - 1) / 2)]) < 0) {
+        this.data[i] = this.data[Math.floor((i - 1) / 2)]
+        this.data[Math.floor((i - 1) / 2)] = v
+        i = Math.floor((i - 1) / 2)
+      }
+    }
+    insert(v) {
+      this.insertAt(this.data.length, v)
+    }
+    get length() {
+      return this.data.length
+    }
+  }
+
+
+
+
+  let map = localStorage.map ? JSON.parse(localStorage.map) : new Array(10000).fill(0),
+    container = document.getElementById('container'),
+    fragment = document.createDocumentFragment(),
+    mouse = false,
+    clear = false;
+  for (let y = 0; y < 100; y++) {
+    for (let x = 0; x < 100; x++) {
+      let cell = document.createElement('div')
+      cell.classList.add('cell')
+
+      if (map[y * 100 + x] === 1) {
+        cell.style.backgroundColor = 'black'
+      }
+      cell.addEventListener('mouseover', () => {
+        if (mouse) {
+          if (clear) {
+            cell.style.backgroundColor = ''
+            map[y * 100 + x] = 0
+          } else {
+            cell.style.backgroundColor = 'black'
+            map[y * 100 + x] = 1
+          }
+        }
+
+      })
+      fragment.appendChild(cell)
+    }
+  }
+  container.appendChild(fragment)
+
+  document.addEventListener('mousedown', e => {
+    mouse = true
+    // console.log('e.which', e)
+    clear = (e.which === 3)
+  })
+  document.addEventListener('mouseup', () => mouse = false)
+  document.addEventListener('contextmenu', e => e.preventDefault())
+
+
+  function sleep(t) {
+    return new Promise(resolve => {
+      setTimeout(resolve, t)
+    })
+  }
+
+  async function findPath(map, start, end) {
+    // 先白再紫再蓝  三种状态
+    map = map.slice()
+    // let table = Object.create(map)
+    // let queue = [start] // 广度/深度优先搜索 队列 栈 广搜可以找到最优路径
+    function distance([x, y]) {
+      return (x - end[0]) ** 2 + (y - end[1]) ** 2
+    }
+
+    let collection = new BinaryHeap([start], (a, b) => distance(a) - distance(b))
+
+    container.children[start[1] * 100 + start[0]].style.backgroundColor = 'green'
+
+    container.children[end[1] * 100 + end[0]].style.backgroundColor = 'red'
+
+
+    async function insert([x, y], pre) {
+      // 没值
+      if (map[100 * y + x]) return
+      // 到边了
+      if (x < 0 || y < 0 || x > 100 || y > 100) return
+      map[y * 100 + x] = pre
+      container.children[y * 100 + x].style.backgroundColor = 'lightgreen'
+      await sleep(5)
+      collection.insert([x, y])
+    }
+
+
+    while (collection.length) {
+      let [x, y] = collection.take() // 取最小值 pop unshift   push shift 入队频繁
+
+      if (x === end[0] && y === end[1]) {
+        let path = []
+        while (x !== start[0] || y !== start[1]) {
+          path.push([x, y])
+          await sleep(5)
+          container.children[y * 100 + x].style.backgroundColor = 'pink'
+          let [preX, preY] = map[y * 100 + x]
+          // console.log('before :', preX, preY, map[y * 100 + x])
+          x = preX
+          y = preY
+        }
+        console.log('map', map)
+        return path
+      }
+
+      // 上下左右
+      await insert([x - 1, y], [x, y])
+      await insert([x + 1, y], [x, y])
+      await insert([x, y - 1], [x, y])
+      await insert([x, y + 1], [x, y])
+
+      // 上左 上右 下左 下右 斜向位置
+      await insert([x - 1, y - 1], [x, y])
+      await insert([x + 1, y - 1], [x, y])
+      await insert([x - 1, y + 1], [x, y])
+      await insert([x + 1, y + 1], [x, y])
+
+    }
+    return null
+  }
+
+</script>

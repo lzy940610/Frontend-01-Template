@@ -17,13 +17,27 @@
   }
 </style>
 <div id="container"></div>
+<form class="form" id="form" onreset="return confirm('Are you sure to clear all form value?')">
+  <label class="" for="start">start point</label>
+  <input type="text" placeholder="start point eg: 0,0" value="0,0" name="start">
+  <label for="end"> end point</label>
+  <input type="text" placeholder="end point rg: 50,50" value="50,50" name="end">
+  <button type="submit" form="form">start</button>
+  <button type="reset">reset</button>
+</form>
 <button onclick="localStorage.map = JSON.stringify(map)">save</button>
-
-
 <script>
+  const form = document.getElementById('form')
+  form.addEventListener('submit', e => {
+    e.preventDefault()
+    findPath(map, getFormValue(form, 'start'), getFormValue(form, 'end'))
+  }, false)
 
-
-
+  function getFormValue(form, name) {
+    return form.elements[name].value.split(',').map(Number)
+  }
+</script>
+<script>
 
   let map = localStorage.map ? JSON.parse(localStorage.map) : new Array(10000).fill(0),
     container = document.getElementById('container'),
@@ -102,8 +116,6 @@
   async function findPath(map, start, end) {
     // 先白再紫再蓝  三种状态
     map = map.slice()
-    // let table = Object.create(map)
-    // let queue = [start] // 广度/深度优先搜索 队列 栈 广搜可以找到最优路径
     function distance([x, y]) {
       return (x - end[0]) ** 2 + (y - end[1]) ** 2
     }
@@ -120,6 +132,7 @@
       if (map[100 * y + x]) return
       // 到边了
       if (x < 0 || y < 0 || x > 100 || y > 100) return
+      // 存储上次路径点
       map[y * 100 + x] = pre
       container.children[y * 100 + x].style.backgroundColor = 'lightgreen'
       await sleep(5)

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tokenize</title>
+</head>
+
+<body>
+  <script>
+    /**
+    解析一个四则运算的表达式
+ * JavaScript RegExp 对象是有状态的。
+ * 他们会将上次成功匹配后的位置记录在 lastIndex 属性中。
+ * 使用此特性，exec() 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），
+ * 而相比之下， String.prototype.match() 只会返回匹配到的结果。
+ * xec 对一段长文字的一次匹配 比match test要实用很多 是一个比较大东西 一般时候 处理文本的时候是需要这个的
+ * 如果你只是为了判断是否匹配（true或 false），可以使用 RegExp.test() 方法，或者 String.search() 方法
+ * 
+*/
+
+    /**
+     * | 或
+     * [] 方括号内的任意字符
+     * () 组合
+     * (?:) 只组合不记忆
+     * 
+    */
+
+    /**
+      正则四则运算
+      Option: 加上括号 ()
+
+    */
+    let regexp = /([0-9\.]+)|([ ])|([\r\n])|(\+)|(\-)|(\*)|(\/)/g
+
+    let dictionary = ["Number", "Whitespace", "LineTerminator", "+", "-", "*", "/"]
+
+
+
+    function* tokenize(source) {
+      let result = null
+      let lastIndex = 0
+
+      do {
+        lastIndex = regexp.lastIndex
+        result = regexp.exec(source)
+
+        if (!result) break
+
+        // 混入了无法识别的字符
+        if (regexp.lastIndex - lastIndex > result[0].length) {
+          throw new Error(`Unexpected token ${source.slice(lastIndex, regexp.lastIndex - result[0].length)} `)
+        }
+
+        let token = {
+          type: null,
+          value: null
+        }
+
+
+        for (let i = 0; i < dictionary.length; i++) {
+          if (result[i + 1]) {
+            token.type = dictionary[i]
+          }
+        }
+
+        token.value = result[0]
+
+        yield token
+
+      } while (result)
+
+      yield { type: "EOF" }
+    }
+
+    function Expression(source) {
+      if (source[0].type === "AdditiveExpression" && source[1].type === "EOF") {
+        let node = {
+          type: "Expression",
+          children: [source.shift(), source.shift()]
+        }
+        source.unshift(node)
+        return node
+      }
+      AdditiveExpression(source)
+      return Expression(source)
+    }
+
+    // 展开式 3种
+    function AdditiveExpression(source) {
+      if (source[0].type === "Number") {
+        MultiplicativeExpression(source)
+        return AdditiveExpression(source)
+
+      }
+
+      if (source[0].type === "MultiplicativeExpression") {
+        // 生产一个节点
+        let node = {
+          type: "AdditiveExpression",
+          children: [source.shift()]
+        }
+        source.unshift(node)
+        return AdditiveExpression(source)
+      }
+
+      if (source[0].type === "AdditiveExpression" &&
+        source.length > 1 && source[1].type === "+") {
+        // 生产一个节点
+        let node = {
+          type: "AdditiveExpression",
+          children: [source.shift(), source.shift()]
+        }
+        MultiplicativeExpression(source)
+        node.children.push(source.shift())
+        source.unshift(node)
+        return AdditiveExpression(source)
+      }
+
+
+      if (source[0].type === "AdditiveExpression" &&
+        source.length > 1 && source[1].type === "-") {
+        // 生产一个节点
+        let node = {
+          type: "AdditiveExpression",
+          children: [source.shift(), source.shift()]
+        }
+        MultiplicativeExpression(source)
+        node.children.push(source.shift())
+        source.unshift(node)
+        return AdditiveExpression(source)
+      }
+
+
+      if (source[0].type === "AdditiveExpression")
+        return source[0]
+
+    }
+
+    // 产生式 2种
+    function MultiplicativeExpression(source) {
+      // shift 头删 unshify 头增 队列
+      if (source[0].type === "Number") {
+        // 生产一个节点
+        let node = {
+          type: "MultiplicativeExpression",
+          children: source.shift() // 移除数组第一个
+        }
+        source.unshift(node) // 移除数组第一个
+        return MultiplicativeExpression(source)
+
+      }
+
+      if (source[0].type === "MultiplicativeExpression" &&
+        source.length > 0 && source[1].type === "*") {
+        let node = {
+          type: "MultiplicativeExpression",
+          children: [source.shift(), source.shift(), source.shift()]
+        }
+        source.unshift(node)
+        return MultiplicativeExpression(source)
+
+      }
+
+
+      if (source[0].type === "MultiplicativeExpression" &&
+        source.length > 0 && source[1].type === "/") {
+        let node = {
+          type: "MultiplicativeExpression",
+          children: [source.shift(), source.shift(), source.shift()]
+        }
+        source.unshift(node)
+        return MultiplicativeExpression(source)
+
+      }
+
+      if (source[0].type === "MultiplicativeExpression")
+        return source[0]
+
+      return MultiplicativeExpression(source)
+
+    }
+
+    let source = []
+
+    for (const token of tokenize("5 + 1024 * 2")) {
+      if (token.type !== "Whitespace" && token.type !== "LineTerminator") {
+        source.push(token)
+      }
+    }
+
+    console.log(Expression(source))
+
+
+  </script>
+</body>
+
+</html>

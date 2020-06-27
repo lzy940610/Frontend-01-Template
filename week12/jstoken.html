@@ -1,0 +1,69 @@
+<style>
+  .keywords {
+    color: blue;
+  }
+
+  .whitespace {}
+
+  .indentifier {
+    color: skyblue;
+  }
+
+  .punctuator {
+    color: blueviolet;
+  }
+</style>
+<pre id="container">
+
+</pre>
+<script>
+  /**
+   * JavaScript RegExp 对象是有状态的。
+   * 他们会将上次成功匹配后的位置记录在 lastIndex 属性中。
+   * 使用此特性，exec() 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），
+   * 而相比之下， String.prototype.match() 只会返回匹配到的结果。
+   * xec 对一段长文字的一次匹配 比match test要实用很多 是一个比较大东西 一般时候 处理文本的时候是需要这个的
+   * 如果你只是为了判断是否匹配（true或 false），可以使用 RegExp.test() 方法，或者 String.search() 方法
+   * 
+  */
+  let source = `
+  function sleep(t) {
+    return new Promise(function(resolve){
+      setTimeout(resolve, t)
+    });
+  }
+  `
+  /**
+   * | 或
+   * [] 方括号内的任意字符
+   * () 组合
+   * (?:) 只组合不记忆
+   * 
+  */
+  let regexp = /(function|new|return)|([ \t\n\r]+)|([a-zA-Z][a-zA-Z0-9]*)|([\(\)\{\}\,\;])/g
+
+  let dictionary = ["keywords", "whitespace", "indentifier", "punctuator"]
+
+  let token = null
+  let lastIndex = 0
+
+  let container = document.getElementById('container')
+
+  do {
+    lastIndex = regexp.lastIndex
+    token = regexp.exec(source)
+    if (!token) break
+    let text = document.createElement('span')
+    text.textContent = token[0]
+
+    console.log(regexp.lastIndex)
+    for (let i = 1; i < 5; i++) {
+      if (token[i]) {
+        text.classList.add(dictionary[i - 1])
+        // console.log(dictionary[i - 1], token[0])
+      }
+    }
+
+    container.appendChild(text)
+  } while (token) 
+</script>

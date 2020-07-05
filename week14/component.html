@@ -1,0 +1,49 @@
+<template>
+  <MyCompoents $ref="abc">
+    <div></div>
+  </MyCompoents>
+</template>
+<script>
+  export default {
+    mounted() {
+      this.$ref[abc].class = 1
+    }
+  }
+</script>
+<script>
+  class MyComponent extends Component{
+    constructor(config) {
+      this.state = {
+        i : 1
+      }
+    }
+
+    get prop1(){
+
+    }
+
+    set prop1(){
+
+    }
+
+    getAttribute(attr) {
+
+    }
+
+    setAttribute(attr, value){
+
+    }
+
+    mounted(){
+
+    }
+
+    render(){
+      
+    }
+  }
+</script>
+
+let myComponent = new MyComponent({ class: 333 })
+
+myComponent.setAttrbute("class", "33")-

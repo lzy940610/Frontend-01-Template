@@ -1,0 +1,91 @@
+<div id="container">
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+</div>
+<div id="dragable" style="width: 100px;height: 100px;background-color: pink;display: inline-block;"></div>
+
+<script>
+  let dragable = document.getElementById("dragable")
+
+  let baseX = 0, baseY = 0
+
+  let timer = null
+  dragable.addEventListener("mousedown", event => {
+    let { clientX: startX, clientY: startY } = event
+
+    let move = event => {
+      timer && clearTimeout(timer)
+      timer = setTimeout(() => {
+        let range = nearest(event.clientX, event.clientY)
+        range.insertNode(dragable)
+      }, 100);
+      // let range = nearest(event.clientX, event.clientY)
+      // // console.log('range', range)
+      // range.insertNode(dragable)
+
+      // console.log('event', event)
+      // let x = baseX + event.clientX - startX,
+      //     y = baseY + event.clientY - startY
+
+      // transform: translate(10px, 10px);
+      // console.log('x, y', x, y)
+      // dragable.style.transform = `translate(${x}px, ${y}px)`
+    } 
+    let up = event => {
+      baseX = baseX + event.clientX - startX
+      baseY = baseY + event.clientY  - startY
+      document.removeEventListener("mousemove", move)
+      document.removeEventListener("mouseup", up)
+    }
+
+    document.addEventListener("mousemove", move)
+    document.addEventListener("mouseup", up)
+
+  })
+
+  // range 在dom里面的一些空
+  let ranges = []
+
+  let container = document.getElementById("container")
+  for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+    let range = document.createRange()
+    range.setStart(container.childNodes[0], i)
+    range.setEnd(container.childNodes[0], i)    
+    // console.log(range.getBoundingClientRect())
+    ranges.push(range)
+  }
+
+  // 获取当前最近的range
+  function nearest(x0, y0) {
+    let nearestRange = null
+    let distance = Infinity // 求最小值 设置为正无穷 求 最大值设置为负无穷
+    for (let range of ranges) {
+      let { x, y } = range.getBoundingClientRect()
+      let d = (x0 - x) ** 2 + (y0 - y) ** 2
+
+      if (d < distance) {
+        nearestRange = range
+        distance = d
+      }
+    }
+    return nearestRange
+  }
+
+  document.addEventListener("selectstart", event => event.preventDefault())
+
+</script>

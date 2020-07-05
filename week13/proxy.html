@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy & 双向绑定</title>
+  <style>
+    input {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <section>
+    Toy Reactivity
+  </section>
+
+  <input id="r" type="range" min="0" max="255" />
+  <input id="g" type="range" min="0" max="255" />
+  <input id="b" type="range" min="0" max="255" />
+
+  <div id="color" style="width: 100px; height: 100px;background-color: rgb(255, 255, 255);"> </div>
+
+
+  <script>
+    /**
+      Proxy 太过强大
+      The Proxy object enables you to create a proxy for another object,
+      which can intercept and redefine fundamental operations for that object.
+      静态依赖收集 
+      把 object 包装一下
+      提供了各种 钩子 Hook
+      完全自定义的一个对象
+      专门提供给库和框架的使用者
+      和Promise很相似 套入一个函数
+      元编程的入口
+    */
+    let handlers = new Map()
+    let reactivities = new Map()
+    let usedReactivities = []
+
+    let object = {
+      a: {
+        x: 1
+      },
+      b: 2
+    }
+
+    object.a = 1
+   
+    function reactive(obj) {
+      if (reactivities.has(obj)) {
+        return reactivities.get(obj)
+      }
+
+      let proxy =  new Proxy(obj, {
+        get(obj, prop) {
+          usedReactivities.push([obj, prop])
+          // console.log('get :', obj, prop)
+          if (typeof obj[prop] === "object") 
+            return reactive(obj[prop])
+          return obj[prop]
+        },
+        set(obj, prop, val) {
+          // console.log('set :', obj, prop, val)
+          obj[prop] = val
+          if (handlers.get(obj)) 
+            if (handlers.get(obj).get(prop)) 
+              for (let handler of handlers.get(obj).get(prop))
+                handler()
+            
+          return obj[prop]
+        }
+      })
+
+      reactivities.set(obj, proxy)
+
+      return proxy
+    }
+
+    function effect(handler) {
+      // 先清空 再操作
+      usedReactivities = []
+      handler()
+      // console.log('usedReactivities', usedReactivities)
+      // handlers.push(handler)
+      for (const usedReactivity of usedReactivities) {
+        let [obj, prop] = usedReactivity
+        // console.log('usedReactivity :', [obj, prop])
+
+        if (!handlers.has(obj)) {
+          handlers.set(obj, new Map())
+        }
+
+        if (!handlers.get(obj).has(prop)) {
+          handlers.get(obj).set(prop, [])
+        }
+
+        handlers.get(obj).get(prop).push(handler)
+
+      }
+    }
+
+    // let dummy
+    // let proxy = reactive(object)
+
+    // effect(() => dummy = proxy.a)
+    // console.log(dummy)
+    // proxy.a = 2
+    // console.log(dummy)
+
+    let p = reactive({ r: 100, g: 100, b: 100 })
+
+    effect(() => {
+      document.getElementById("r").value = p.r
+    })
+
+    effect(() => {
+      document.getElementById("g").value = p.g
+    })
+
+    effect(() => {
+      document.getElementById("b").value = p.b
+    })
+
+    document.getElementById("r").addEventListener("input", event => {
+      p.r = event.target.value
+    })
+
+
+    document.getElementById("g").addEventListener("input", event => {
+      p.g = event.target.value
+    })
+    
+
+
+    document.getElementById("b").addEventListener("input", event => {
+      p.b = event.target.value
+    })
+    
+
+
+    effect(() => {
+      document.getElementById("color").style.backgroundColor = `rgb(${p.r}, ${p.g}, ${p.b})`
+    })
+    
+
+    let range = document.createRange()
+    range.setStart(document.getElementById("text").childNodes[0], 6)
+    range.setEnd(document.getElementById("text").childNodes[0], 14)
+
+    
+
+
+  </script>
+</body>
+
+</html>

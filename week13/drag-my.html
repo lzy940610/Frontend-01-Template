@@ -1,0 +1,92 @@
+<div id="container">
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+  文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+</div>
+<div id="dragable" style="width: 100px;height: 100px;background-color: pink;display: inline-block;"></div>
+
+<script>
+  /**
+    1、监听拖动
+    2、动态计算位置
+    3、重新记录初始位置 并 销毁事件监听
+  */
+  let dragable = document.getElementById("dragable"),
+      container = document.getElementById("container"),
+      ranges = [],
+      baseX = 0,
+      baseY = 0,
+      timer = null;
+
+  // 禁用文本选择
+  document.addEventListener("selectstart", e => e.preventDefault())
+
+  // 监听 dragable 拖拽
+  dragable.addEventListener("mousedown", e => {
+    let { clientX: startX, clientY: startY } = event
+    const move = e => {
+      timer && clearTimeout(timer)
+      timer = setTimeout(() => {
+        let { clientX, clientY } = e
+        let nearestRange = nearest(clientX, clientY)
+
+        nearestRange.insertNode(dragable)
+
+      //   let x = baseX + e.clientX - startX,
+      //     y = baseY + e.clientY - startY
+      
+      // dragable.style.transform = `translate(${x}px, ${y}px)`
+      // dragable.style.transform = `translate(${x}px, ${y}px)`
+      }, 6)
+    }
+
+    const up = e => {
+      baseX += e.clientX - startX
+      baseY += e.clientY - startY
+      // 鼠标释放时 销毁对 DOM 鼠标 移动 与 释放的监听
+      document.removeEventListener("mousemove", move)
+      document.removeEventListener("mouseup", up)
+    }
+
+    // 监听在 dragable内的鼠标 移动与 释放
+    document.addEventListener("mousemove", move)
+    document.addEventListener("mouseup", up)
+  })
+
+  // 计算得到所有的ranges
+  for (let i = 0; i < container.childNodes[0].textContent.length; i++) {
+    let range = document.createRange()
+    range.setStart(container.childNodes[0], i)
+    range.setEnd(container.childNodes[0], i)
+    ranges.push(range)
+  }
+
+  // 计算得到最近的range 
+  function nearest(x0, y0) {
+    let nearestRange = null,
+        distance = Infinity
+
+    for (const range of ranges) {
+      const { x, y } = range.getBoundingClientRect()
+      let d = (x0 - x) ** 2 + (y0 - y) ** 2
+      if (d < distance) {
+        nearestRange = range
+        distance = d
+      }
+    }
+    return nearestRange
+  }
+
+</script>

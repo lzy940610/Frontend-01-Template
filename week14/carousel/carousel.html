@@ -1,0 +1,72 @@
+<style>
+  .carousel {
+    width: 500px;
+    height: 300px;
+    white-space: nowrap;
+    outline: solid 1px blue;
+    overflow: hidden;
+    margin: auto;
+    /* zoom: 0.25; */
+  }
+
+  .carousel>img {
+    display: inline-block;
+    width: 500px;
+    height: 300px;
+    transition: transform ease 1s;
+  }
+</style>
+
+<body>
+  <div id="carousel"></div>
+  <script>
+    class Carousel {
+      constructor(config) {
+        this.root = null
+      }
+      render() {
+        this.root = document.createElement("div")
+        this.root.classList.add("carousel")
+
+        for (let d of this.data) {
+          let img = document.createElement("img")
+          img.src = d
+          img.addEventListener("dragstart", e => e.preventDefault(), false)
+          this.root.appendChild(img)
+        }
+
+        // loop
+        let position = 0
+
+        let nextPic = () => {
+          let nextPosition = (position + 1 + this.data.length) % this.data.length
+
+          console.log('nextPosition', nextPosition)
+          position = nextPosition
+          
+          setTimeout(nextPic, 1000)
+        }
+
+        setTimeout(nextPic, 1000)
+
+        // mount drage
+        
+
+      }
+    }
+
+    let carousel = new Carousel()
+
+    carousel.data = [
+      "https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg",
+      "https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg",
+      "https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg",
+      "https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg",
+    ]
+
+    carousel.render()
+
+    document.getElementById("carousel").appendChild(carousel.root)
+
+  </script>
+</body>

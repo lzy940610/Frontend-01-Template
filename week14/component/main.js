@@ -54,7 +54,9 @@ class Carousel {
 
     setTimeout(nextPic, 3000)
 
+    console.log('root', root)
     // drag function
+    /*
     root.addEventListener("mousedown", e => {
       let { clientX: startX, clientY: startY } = event
       let lastPosition = (position - 1 + this.data.length) % this.data.length
@@ -109,7 +111,7 @@ class Carousel {
       document.addEventListener("mousemove", move)
       document.addEventListener("mouseup", up)
     })
-
+    */
 
     return root
   }

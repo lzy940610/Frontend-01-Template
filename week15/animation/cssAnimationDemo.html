@@ -1,0 +1,21 @@
+<style>
+  #el {
+    width: 100px;
+    height: 100px;
+    background-color: skyblue;
+  }
+</style>
+<div id="el"></div>
+<script>
+  let el = document.getElementById("el")
+  el.style.transition = "ease 3s"
+
+  function start() {
+    el.style.transform = "translate(300px, 300px)"
+  }
+
+  function stop() {
+    el.style.transition = "none"
+    el.style.transform = ""
+  }
+</script>

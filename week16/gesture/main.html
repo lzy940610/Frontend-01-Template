@@ -1,0 +1,47 @@
+<body>
+  <!-- <img src="./states.jpeg" alt="状态转换"  > -->
+  <div id="my" style="transform: translate(0px, 0px) ;width: 100px; height: 100px;background-color: lightblue; "></div>
+</body>
+<script src="./gesture.js"></script>
+<script>
+  // 禁用右键菜单
+  window.addEventListener("contextmenu", e => e.preventDefault())
+  // 禁用复制选择
+  document.addEventListener("selectstart", e => e.preventDefault)
+  // 禁用移动端滚屏
+  document.addEventListener("touchmove", e => e.preventDefault, { passive: false })
+
+  // add custom event
+  let my = document.getElementById("my")
+  enableGesture(my)
+
+  let x = 0, y = 0;
+
+  // 几个状态监听
+  my.addEventListener("start", e => { console.log("start") })
+
+  my.addEventListener("tap", e => { console.log("tap") })
+
+  my.addEventListener("pressstart", e => { console.log("pressstart") })
+  my.addEventListener("pressend", e => { console.log("pressend") })
+
+  my.addEventListener("panstart", e => { console.log("panstart") })
+  my.addEventListener("pan", e => {
+    console.log("pan")
+    const { clientX, clientY, startX, startY } = e.detail
+    my.style.transform = `translate(${x + clientX - startX}px, ${y + clientY - startY}px )`
+  })
+
+  my.addEventListener("panend", e => {
+    console.log("panend")
+    const { clientX, clientY, startX, startY } = e.detail
+    x = x +  clientX - startX
+    y = y + clientY - startY
+    console.log('x, y', x, y)
+    // my.style.transform = `translate(${x}px, ${y}px )`
+  })
+
+  my.addEventListener("flick", e => { console.log("flick") })
+  my.addEventListener("cancel", e => { console.log("cancel") })
+
+</script>

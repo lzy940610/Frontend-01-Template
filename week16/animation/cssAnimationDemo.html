@@ -1,0 +1,38 @@
+<style>
+  #el {
+    width: 100px;
+    height: 100px;
+    background-color: skyblue;
+  }
+</style>
+<div id="el"></div>
+<script>
+  let el = document.getElementById("el")
+  el.style.transition = "ease 3s"
+
+  function start() {
+    el.style.transform = "translate(300px, 300px)"
+  }
+
+  function stop() {
+    /*
+      matrix(1, 0, 0, 1, 102.284, 102.284)
+      
+      3阶矩阵 使用矩阵做图形变换 使用GPU算
+
+      1, 0, 102.284
+      0, 1, 102.284
+      0, 0, 1
+
+      x y 1
+
+      x' y' 1
+
+      rotate scale translate skew
+      不加 skew 可以完美解析回来 所以一般使用js做动画
+      加上 skew 压扁 变成平行四边形 没办法再回来解码了
+    */
+    el.style.transition = "none"
+    el.style.transform = ""
+  }
+</script>

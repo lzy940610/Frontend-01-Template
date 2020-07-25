@@ -1,8 +1,6 @@
 import { createElement, Text, Wrapper } from './createElement'
-// import { Carousel } from './Carousel.js'
-import { Animation, Timeline } from '../animation/animation'
+import { Animation, Timeline } from './animation'
 import { ease } from '../animation/cubicBezier'
-import { enableGesture } from './gesture'
 
 export class Carousel {
   constructor() {
@@ -17,20 +15,93 @@ export class Carousel {
     this.root.addEventListener(...arguments)
   }
   render() {
-    let children = this.data.map(url => {
-      let element = <img src={ url } enableGesture={true} onStart={() => timeline.pause() } />
+    // 引入 Timeline
+    let timeline = new Timeline
+    let position = 0
+    let nextPicStopHandler = null
+    timeline.start()
+
+
+    let children = this.data.map((url, currentPositon) => {
+      let lastPosition = (currentPositon - 1 + this.data.length) % this.data.length
+      let nextPosition = (currentPositon + 1 + this.data.length) % this.data.length
+      let offset = 0
+
+      let onStart = () => {
+        console.log("start")
+        timeline.pause()
+        clearTimeout(nextPicStopHandler)
+
+        let currentElement = children[currentPositon].root
+        let currentTransformValue = Number(currentElement.style.transform.match(/translateX\(([\s\S]+)px\)/)[1])
+        console.log('currentTransformValue', currentTransformValue)
+        offset = currentTransformValue + 500 * currentPositon
+      }
+
+      let onPan = e => {
+        console.log("pan")
+        let lastElement = children[lastPosition].root
+        let currentElement = children[currentPositon].root
+        let nextElement = children[nextPosition].root
+
+        let currentTransformValue = -500 * currentPositon + offset
+        let lastTransformValue = -500 - 500 * lastPosition + offset
+        let nextTransformValue = 500 - 500 * nextPosition + offset
+
+        let dx = e.detail.clientX - e.detail.startX
+
+
+        lastElement.style.transform = `translateX(${lastTransformValue + dx}px)`
+        currentElement.style.transform = `translateX(${currentTransformValue + dx}px)`
+        nextElement.style.transform = `translateX(${nextTransformValue + dx}px)`
+
+      }
+
+      let onPanend = e => {
+        console.log("panend")
+        let direction = 0
+        let dx = e.detail.clientX - e.detail.startX
+
+        if (dx + offset > 250) {
+          direction = 1
+        } else {
+          direction = -1
+        }
+
+        timeline.reset()
+        timeline.start()
+
+        let lastElement = children[lastPosition].root
+        let currentElement = children[currentPositon].root
+        let nextElement = children[nextPosition].root
+
+        let lastAnimation = new Animation(lastElement.style, "transform",
+          - 500 - 500 * lastPosition + offset + dx, - 500 - 500 * lastPosition + direction * 500, 500, 0, ease, v => `translateX(${v}px)`)
+
+        let currentAnimation = new Animation(currentElement.style, "transform",
+          - 500 * currentPositon + offset + dx, - 500 * currentPositon + direction * 500, 500, 0, ease, v => `translateX(${v}px)`)
+
+        let nextAnimation = new Animation(nextElement.style, "transform",
+          500 - 500 * nextPosition + offset + dx, 500 - 500 * nextPosition + direction * 500, 500, 0, ease, v => `translateX(${v}px)`)
+
+        timeline.add(lastAnimation)
+        timeline.add(currentAnimation)
+        timeline.add(nextAnimation)
+
+        position = (position - direction + this.data.length) % this.data.length
+
+        nextPicStopHandler = setTimeout(nextPic, 3000)
+
+      }
+
+      let element = < img src = { url } enableGesture = { true } onStart = { onStart } onPan = { onPan } onPanend = { onPanend }
+      />
+      element.root.style.transform = "translateX(0px)"
       element.root.addEventListener("dragstart", e => e.preventDefault())
       return element
     })
 
-    let root = <div class="carousel">{ children }</div>
 
-    let position = 0
-
-    // 引入 Timeline
-    let timeline = new Timeline
-    // window.xtimeline = timeline
-    timeline.start()
 
 
     let nextPic = () => {
@@ -44,23 +115,23 @@ export class Carousel {
       let currentAnimation = new Animation(
         current.style,
         "transform",
-        - 100 * position,
+        -100 * position,
         -100 - 100 * position,
         500,
         0,
         ease,
-        v => `translateX(${v}%)`
+        v => `translateX(${5 * v}px)`
       )
 
       let nextAnimation = new Animation(
         next.style,
         "transform",
-        100 -100 * nextPosition,
-        - 100 * nextPosition,
+        100 - 100 * nextPosition,
+        -100 * nextPosition,
         500,
         0,
         ease,
-        v => `translateX(${v}%)`
+        v => `translateX(${5 * v}px)`
       )
 
       timeline.add(currentAnimation)
@@ -68,33 +139,15 @@ export class Carousel {
 
       position = nextPosition
 
-      setTimeout(nextPic, 3000)
-      // window.xstophandle = setTimeout(nextPic, 3000)
-
-
+      nextPicStopHandler = setTimeout(nextPic, 3000)
     }
 
-    setTimeout(nextPic, 3000)
+    nextPicStopHandler = setTimeout(nextPic, 3000)
 
-    console.log('root', root)
+    return <div class = "carousel" > { children } </div>
 
-    return root
   }
   mountTo(parent) { // mount 是生命周期 一些DOM挂载最好也放入里面
     this.render().mountTo(parent)
   }
 }
-
-let component = <Carousel data = {
-  [
-    "https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg",
-    "https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg",
-    "https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg",
-    "https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg",
-  ]
-}
-/>
-// let component = <div id="a" class="b" />
-
-component.mountTo(document.body)
-// console.log(component)

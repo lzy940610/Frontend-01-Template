@@ -1,0 +1,12 @@
+{
+  "all": true,
+  "include": [
+    "dist/*.js"
+  ],
+  "exclude": [
+    "**/*.spec.js"
+  ],
+  "extension": {
+    ".mjs"
+  }
+}

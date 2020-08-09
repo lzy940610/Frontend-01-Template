@@ -26,3 +26,7 @@
   * case要管理
   
 #### 单元测试框架： mocha 以及 nyc
+
+DOM 测试 使用无头浏览器 很麻烦的一个事情
+React VDOM 是可以进行 单元测试的
+mocha 其实挺弱的 重要的是 比对的问题 月影分 sprite-core

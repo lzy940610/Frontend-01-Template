@@ -7,7 +7,10 @@
       "test": "mocha --require @babel/register",
       "coverage": "nyc mocha",
       "start": "webpack-dev-server",
-      "build": "webpack"
+      "build": "webpack",
+      "publish": "",
+      "lint": "eslint ./src",
+      "check": "phantom"
     },
     "author": "lizhenyu",
     "license": "MIT"

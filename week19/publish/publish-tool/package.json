@@ -10,5 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "archiver": "^5.0.0"
+  },
+  "devDependencies": {
+    "child_process": "^1.0.2"
   }
 }

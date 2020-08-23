@@ -1,0 +1,15 @@
+<template>
+  <div class="carousel">
+    <img />
+  </div>
+</template>
+<script>
+export default {
+  el: "exmaple",
+  data(){
+    return {
+
+    }
+  }
+}
+</script>

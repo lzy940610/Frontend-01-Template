@@ -45,23 +45,12 @@ const server = http.createServer((req, res) => {
       let user = JSON.parse(body)
       console.log(user)
       // 权限检查
-
+      // do something
       // 开始接收数据
-      let writeStream = unzipper.Extract({
-        path: '../server/public'
-      })
+      let writeStream = unzipper.Extract({ path: '../server/public' })
       req.pipe(writeStream)
-      // req.on('data', trunk => {
-      //   writeStream.write(trunk)
-      // })
-      // req.on('end', trunk => {
-      //   writeStream.end(trunk)
-      // })
-
       req.on('end', () => {
-        res.writeHead(200, {
-          'Content-Type': 'text/plain'
-        })
+        res.writeHead(200, { 'Content-Type': 'text/plain' })
         res.end('okay')
       })
 
